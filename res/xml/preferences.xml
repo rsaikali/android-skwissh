@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="server_category"
+        android:title="Your Skwissh server" >
+        <EditTextPreference
+            android:defaultValue="http://qpvpi2.ve-hotech.me:8080/skwissh"
+            android:dialogMessage="Enter your Skwissh server URL"
+            android:dialogTitle="Skwissh URL"
+            android:key="skwissh_url"
+            android:summary="Define the URL used by this application to retrieve your Skwissh information."
+            android:title="Skwissh URL" />
+        <EditTextPreference
+            android:defaultValue="test"
+            android:dialogMessage="Enter your Skwissh username"
+            android:dialogTitle="Skwissh username"
+            android:key="skwissh_username"
+            android:summary="Define the username used by this application to log into your Skwissh server."
+            android:title="Skwissh username" />
+        <EditTextPreference
+            android:defaultValue="test"
+            android:dialogMessage="Enter your Skwissh password"
+            android:dialogTitle="Skwissh password"
+            android:key="skwissh_password"
+            android:summary="Define the password used by this application to log into your Skwissh server."
+            android:title="Skwissh password"
+            android:inputType="textPassword" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="View options" android:key="view_category">
+        <ListPreference
+            android:key="default_period"
+            android:title="Default period view"
+            android:summary="Define default period for measures (hour, day, week or month)"
+            android:defaultValue="day"
+            android:entries="@array/period"
+            android:entryValues="@array/periodValues"
+        />  
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="HardcodedText" severity="ignore" />
+    <issue id="IconLocation" severity="ignore" />
+    <issue id="Overdraw" severity="ignore" />
+    <issue id="UseValueOf" severity="ignore" />
+</lint>

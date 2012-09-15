@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="period">
+        <item name="hour">Show last hour</item>
+        <item name="day">Show last day</item>
+        <item name="week">Show last week</item>
+        <item name="month">Show last month</item>
+    </string-array>
+    <string-array name="periodValues">
+        <item name="hour">hour</item>
+        <item name="day">day</item>
+        <item name="week">week</item>
+        <item name="month">month</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#4d4d4d"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="10dp" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp" >
+
+        <TextView
+            android:id="@+id/serverGroupName"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="50dp"
+            android:text="Development"
+            android:textColor="#e6e6e6"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/serversCount"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="right|center_vertical"
+            android:paddingRight="20dp"
+            android:text="6 servers"
+            android:textColor="#e6e6e6"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/server_status_icon_description"
+        android:background="#7FAE00"
+        android:paddingBottom="6dp" />
+
+</LinearLayout>
