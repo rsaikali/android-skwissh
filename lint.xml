@@ -2,6 +2,7 @@
 <lint>
     <issue id="HardcodedText" severity="ignore" />
     <issue id="IconLocation" severity="ignore" />
+    <issue id="NewApi" severity="ignore" />
     <issue id="Overdraw" severity="ignore" />
     <issue id="UseValueOf" severity="ignore" />
 </lint>

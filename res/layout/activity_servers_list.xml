@@ -10,7 +10,11 @@
     <ExpandableListView
         android:id="@+id/expandableListView_servers"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:dividerHeight="0dp" >
+
     </ExpandableListView>
 
 </RelativeLayout>

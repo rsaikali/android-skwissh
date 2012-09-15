@@ -6,6 +6,7 @@ import java.util.Date;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.chart.BarChart.Type;
+import org.achartengine.chart.LineChart;
 import org.achartengine.model.CategorySeries;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -19,10 +20,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.saikali.android_skwissh.objects.SkwisshSensorItem;
-import com.saikali.android_skwissh.utils.Constants;
 
 public class SensorGraphViewBuilder {
 
@@ -30,10 +29,11 @@ public class SensorGraphViewBuilder {
 			Color.rgb(127, 174, 0), Color.rgb(234, 162, 40), Color.rgb(213, 56, 59), Color.rgb(78, 165, 181), Color.rgb(127, 174, 0), Color.rgb(234, 162, 40), Color.rgb(213, 56, 59), Color.rgb(78, 165, 181) };
 	private int fontColor = Color.rgb(77, 77, 77);
 	private int lightFontColor = Color.rgb(170, 170, 170);
-	private int backgroundColor = Color.rgb(214, 214, 214);
+	private int backgroundColor = Color.rgb(242, 242, 242);
 	private String period;
 	private SkwisshSensorItem sensor;
 	private Context context;
+	private int[] margins = new int[] { 50, 50, 50, 20 };
 
 	public SensorGraphViewBuilder(Context context, SkwisshSensorItem sensor) {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
@@ -43,21 +43,40 @@ public class SensorGraphViewBuilder {
 	}
 
 	public GraphicalView createGraphView() {
-		if (sensor.getGraphTypeName().equals("pie")) {
-			Log.i(Constants.SKWISSH_TAG, "Drawing PIE");
+		if (sensor.getGraphTypeName().equals("pie"))
 			return this.createPieView();
-		} else if (sensor.getGraphTypeName().contains("linegraph")) {
-			Log.i(Constants.SKWISSH_TAG, "Drawing LINE");
+		else if (sensor.getGraphTypeName().equals("linegraph"))
 			return this.createLineView();
-		} else if (sensor.getGraphTypeName().contains("bargraph")) {
-			Log.i(Constants.SKWISSH_TAG, "Drawing BAR");
+		else if (sensor.getGraphTypeName().equals("linegraph_stacked"))
+			return this.createLineStackedView();
+		else if (sensor.getGraphTypeName().equals("bargraph"))
 			return this.createBarView();
-		} else {
-			return null;
-		}
+		else if (sensor.getGraphTypeName().equals("bargraph_groups"))
+			return this.createBarGroupView();
+		else
+			return new GraphicalView(this.context, new LineChart(new XYMultipleSeriesDataset(), new XYMultipleSeriesRenderer()));
+
 	}
 
-	public GraphicalView createPieView() {
+	private XYMultipleSeriesRenderer getDefaultRenderer() {
+		XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+		renderer.setApplyBackgroundColor(true);
+		renderer.setInScroll(true);
+		renderer.setAntialiasing(true);
+		renderer.setLabelsTextSize(15);
+		renderer.setLegendTextSize(15);
+		renderer.setPanEnabled(false);
+		renderer.setShowLegend(false);
+		renderer.setShowGrid(true);
+		renderer.setMargins(margins);
+		renderer.setFitLegend(true);
+		renderer.setAxesColor(this.fontColor);
+		renderer.setLabelsColor(this.fontColor);
+		renderer.setBackgroundColor(this.backgroundColor);
+		return renderer;
+	}
+
+	private GraphicalView createPieView() {
 
 		// Categories
 		CategorySeries categorySeries = new CategorySeries(this.sensor.getDisplayName());
@@ -69,26 +88,17 @@ public class SensorGraphViewBuilder {
 		}
 
 		// Renderer
-		DefaultRenderer renderer = new DefaultRenderer();
+		DefaultRenderer renderer = (DefaultRenderer) this.getDefaultRenderer();
 		for (int color : Arrays.copyOfRange(colors, 0, values.length)) {
 			SimpleSeriesRenderer r = new SimpleSeriesRenderer();
 			r.setColor(color);
 			renderer.addSeriesRenderer(r);
 		}
-		renderer.setApplyBackgroundColor(true);
-		renderer.setInScroll(true);
-		renderer.setAntialiasing(true);
-		renderer.setLabelsTextSize(18);
-		renderer.setLegendTextSize(18);
-		renderer.setLabelsColor(this.fontColor);
-		renderer.setBackgroundColor(this.backgroundColor);
-		renderer.setPanEnabled(false);
-		renderer.setShowLegend(false);
 
 		return ChartFactory.getPieChartView(context, categorySeries, renderer);
 	}
 
-	public GraphicalView createLineView() {
+	private GraphicalView createLineView() {
 
 		// Categories
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
@@ -98,15 +108,15 @@ public class SensorGraphViewBuilder {
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
 			for (int j = 0; j < sensor.getMeasures().size(); j++) {
-				String value = sensor.getMeasures().get(j).getValue().split(";")[i];
+				Double value = new Double(sensor.getMeasures().get(j).getValue().split(";")[i]);
 				Date date = sensor.getMeasures().get(j).getTimestamp();
-				timeSerie.add(date, new Double(value));
+				timeSerie.add(date, value);
 			}
 			dataset.addSeries(timeSerie);
 		}
 
 		// Renderer
-		XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+		XYMultipleSeriesRenderer renderer = this.getDefaultRenderer();
 		for (int color : Arrays.copyOfRange(colors, 0, nb_values)) {
 			XYSeriesRenderer r = new XYSeriesRenderer();
 			r.setColor(color);
@@ -116,31 +126,18 @@ public class SensorGraphViewBuilder {
 			r.setLineWidth(2);
 			renderer.addSeriesRenderer(r);
 		}
-		renderer.setApplyBackgroundColor(true);
-		renderer.setInScroll(true);
-		renderer.setAntialiasing(true);
-		renderer.setLabelsTextSize(18);
-		renderer.setLegendTextSize(18);
+
+		renderer.setShowLegend(true);
 		renderer.setPanEnabled(true, false);
 		renderer.setZoomEnabled(true, false);
-		renderer.setLabelsColor(this.fontColor);
-		renderer.setMarginsColor(this.backgroundColor);
-		renderer.setAxesColor(this.fontColor);
 
-		renderer.setBackgroundColor(this.backgroundColor);
-		renderer.setShowLegend(true);
-		renderer.setYAxisMin(0);
-		renderer.setShowGrid(true);
 		renderer.setGridColor(this.lightFontColor);
+		renderer.setMarginsColor(this.backgroundColor);
 
 		renderer.setXLabelsColor(this.fontColor);
 		renderer.setYLabelsColor(0, this.fontColor);
 		renderer.setYLabelsAlign(Align.RIGHT);
-
-		renderer.setApplyBackgroundColor(true);
-
-		renderer.setMargins(new int[] { 50, 50, 50, 50 });
-		renderer.setFitLegend(true);
+		renderer.setYAxisMin(0);
 
 		String dateFormat = "HH:mm\nMMM dd";
 		if (this.period.equals("hour"))
@@ -149,7 +146,7 @@ public class SensorGraphViewBuilder {
 		return ChartFactory.getTimeChartView(context, dataset, renderer, dateFormat);
 	}
 
-	public GraphicalView createBarView() {
+	private GraphicalView createLineStackedView() {
 
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
@@ -164,7 +161,7 @@ public class SensorGraphViewBuilder {
 				Double value = 0.0;
 				for (int k = 0; k <= i; k++) {
 					Double old_value = new Double(sensor.getMeasures().get(j).getValue().split(";")[k]);
-					value = value + old_value;
+					value += old_value;
 				}
 				timeSerie.add(date, value);
 			}
@@ -177,45 +174,135 @@ public class SensorGraphViewBuilder {
 		}
 
 		// Renderer
-		XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+		XYMultipleSeriesRenderer renderer = this.getDefaultRenderer();
 
 		for (int i = Arrays.copyOfRange(this.colors, 0, nb_values).length - 1; i >= 0; i--) {
 			int color = Arrays.copyOfRange(this.colors, 0, nb_values)[i];
 			XYSeriesRenderer r = new XYSeriesRenderer();
 			r.setColor(color);
+			r.setFillBelowLineColor(color);
 			r.setFillBelowLine(true);
-			r.setFillBelowLine(false);
-			r.setFillPoints(true);
 			r.setLineWidth(2);
 			renderer.addSeriesRenderer(r);
 		}
-		renderer.setApplyBackgroundColor(true);
-		renderer.setInScroll(true);
-		renderer.setBarSpacing(0.5);
-		renderer.setAntialiasing(true);
-		renderer.setLabelsTextSize(18);
-		renderer.setLegendTextSize(18);
+
+		renderer.setShowLegend(true);
 		renderer.setPanEnabled(true, false);
 		renderer.setZoomEnabled(true, false);
-		renderer.setLabelsColor(this.fontColor);
-		renderer.setMarginsColor(this.backgroundColor);
-		renderer.setAxesColor(this.fontColor);
 
-		renderer.setBackgroundColor(this.backgroundColor);
-		renderer.setShowLegend(true);
-		renderer.setYAxisMin(0);
-		renderer.setShowGrid(true);
 		renderer.setGridColor(this.lightFontColor);
+		renderer.setMarginsColor(this.backgroundColor);
 
 		renderer.setXLabelsColor(this.fontColor);
 		renderer.setYLabelsColor(0, this.fontColor);
 		renderer.setYLabelsAlign(Align.RIGHT);
+		renderer.setYAxisMin(0);
 
-		renderer.setApplyBackgroundColor(true);
+		renderer.setBarSpacing(0);
 
-		renderer.setMargins(new int[] { 50, 50, 50, 50 });
-		renderer.setFitLegend(true);
+		return ChartFactory.getLineChartView(context, dataset, renderer);
+	}
+
+	private GraphicalView createBarView() {
+
+		// Categories
+		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
+
+		String[] labels = sensor.getLabels().split(";");
+		int nb_values = sensor.getMeasures().get(0).getValue().split(";").length;
+
+		for (int i = 0; i < nb_values; i++) {
+			TimeSeries timeSerie = new TimeSeries(labels[i]);
+			for (int j = 0; j < sensor.getMeasures().size(); j++) {
+				Date date = sensor.getMeasures().get(j).getTimestamp();
+				Double value = 0.0;
+				for (int k = 0; k <= i; k++) {
+					Double old_value = new Double(sensor.getMeasures().get(j).getValue().split(";")[k]);
+					value += old_value;
+				}
+				timeSerie.add(date, value);
+			}
+			tmp_dataset.addSeries(timeSerie);
+		}
+
+		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+		for (int i = tmp_dataset.getSeries().length - 1; i >= 0; i--) {
+			dataset.addSeries(tmp_dataset.getSeriesAt(i));
+		}
+
+		// Renderer
+		XYMultipleSeriesRenderer renderer = this.getDefaultRenderer();
+
+		for (int i = Arrays.copyOfRange(this.colors, 0, nb_values).length - 1; i >= 0; i--) {
+			int color = Arrays.copyOfRange(this.colors, 0, nb_values)[i];
+			XYSeriesRenderer r = new XYSeriesRenderer();
+			r.setColor(color);
+			renderer.addSeriesRenderer(r);
+		}
+
+		renderer.setShowLegend(true);
+		renderer.setPanEnabled(true, false);
+		renderer.setZoomEnabled(true, false);
+
+		renderer.setGridColor(this.lightFontColor);
+		renderer.setMarginsColor(this.backgroundColor);
+
+		renderer.setXLabelsColor(this.fontColor);
+		renderer.setYLabelsColor(0, this.fontColor);
+		renderer.setYLabelsAlign(Align.RIGHT);
+		renderer.setYAxisMin(0);
+
+		renderer.setBarSpacing(0.2);
 
 		return ChartFactory.getBarChartView(context, dataset, renderer, Type.STACKED);
+	}
+
+	private GraphicalView createBarGroupView() {
+
+		// Categories
+		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
+
+		String[] labels = sensor.getLabels().split(";");
+		int nb_values = sensor.getMeasures().get(0).getValue().split(";").length;
+
+		for (int i = 0; i < nb_values; i++) {
+			TimeSeries timeSerie = new TimeSeries(labels[i]);
+			for (int j = 0; j < sensor.getMeasures().size(); j++) {
+				Date date = sensor.getMeasures().get(j).getTimestamp();
+				Double value = new Double(sensor.getMeasures().get(j).getValue().split(";")[i]);
+				timeSerie.add(date, value);
+			}
+			tmp_dataset.addSeries(timeSerie);
+		}
+
+		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+		for (int i = tmp_dataset.getSeries().length - 1; i >= 0; i--) {
+			dataset.addSeries(tmp_dataset.getSeriesAt(i));
+		}
+
+		// Renderer
+		XYMultipleSeriesRenderer renderer = getDefaultRenderer();
+
+		for (int i = Arrays.copyOfRange(this.colors, 0, nb_values).length - 1; i >= 0; i--) {
+			int color = Arrays.copyOfRange(this.colors, 0, nb_values)[i];
+			XYSeriesRenderer r = new XYSeriesRenderer();
+			r.setColor(color);
+			renderer.addSeriesRenderer(r);
+		}
+		renderer.setShowLegend(true);
+		renderer.setPanEnabled(true, false);
+		renderer.setZoomEnabled(true, false);
+
+		renderer.setGridColor(this.lightFontColor);
+		renderer.setMarginsColor(this.backgroundColor);
+
+		renderer.setXLabelsColor(this.fontColor);
+		renderer.setYLabelsColor(0, this.fontColor);
+		renderer.setYLabelsAlign(Align.RIGHT);
+		renderer.setYAxisMin(0);
+
+		renderer.setBarSpacing(0.2);
+
+		return ChartFactory.getBarChartView(context, dataset, renderer, Type.DEFAULT);
 	}
 }

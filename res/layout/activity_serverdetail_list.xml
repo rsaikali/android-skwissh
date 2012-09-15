@@ -10,7 +10,10 @@
     <ExpandableListView
         android:id="@+id/expandableListView_sensors"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" >
+
     </ExpandableListView>
 
 </RelativeLayout>

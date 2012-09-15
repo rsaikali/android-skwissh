@@ -28,20 +28,22 @@ public class SensorsLoader extends AsyncTask<String, String, Boolean> {
 	}
 
 	protected void onPreExecute() {
-		this.dialog.setMessage("Loading Skwissh sensors for server " + this.adapter.getServer().getHostname() + "...");
+		this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		this.dialog.setMessage("Loading Skwissh measures for server " + this.adapter.getServer().getHostname() + "...");
 		this.dialog.show();
 	}
 
 	@Override
 	protected void onProgressUpdate(String... values) {
+		this.dialog.setMax(adapter.getServer().getSensors().size());
 		this.dialog.setMessage(values[0]);
+		this.dialog.setProgress(new Integer(values[1]).intValue());
 		super.onProgressUpdate(values);
 	}
 
 	@Override
 	protected Boolean doInBackground(String... params) {
 		try {
-
 			adapter.getServer().clearSensors();
 			SkwisshAjaxHelper saj = new SkwisshAjaxHelper(this.adapter.context);
 
@@ -59,7 +61,7 @@ public class SensorsLoader extends AsyncTask<String, String, Boolean> {
 
 			for (int j = 0; j < adapter.getServer().getSensors().size(); j++) {
 				SkwisshSensorItem sensor = adapter.getServer().getSensors().get(j);
-				publishProgress("Loading Skwissh measures...\n" + adapter.getServer().getHostname() + "\n" + sensor.getDisplayName());
+				publishProgress("Loading Skwissh measures...\n" + adapter.getServer().getHostname() + "\n" + sensor.getDisplayName(), Integer.toString(j + 1));
 				JSONArray jsonMeasures = saj.getJSONMeasures(adapter.getServer(), sensor);
 				for (int k = 0; k < jsonMeasures.length(); k++)
 					sensor.addMeasure(new SkwisshMeasureItem(jsonMeasures.getJSONObject(k)));
@@ -79,12 +81,12 @@ public class SensorsLoader extends AsyncTask<String, String, Boolean> {
 			this.dialog.dismiss();
 
 		if (success) {
-			Toast.makeText(this.adapter.context, "Skwissh data loaded successfully", Toast.LENGTH_LONG).show();
+			Toast.makeText(this.adapter.context, "Skwissh measures loaded successfully", Toast.LENGTH_LONG).show();
 			this.adapter.updateEntries();
 		} else {
 			AlertDialog alertDialog = new AlertDialog.Builder(this.adapter.context).create();
 			alertDialog.setTitle("Error");
-			alertDialog.setMessage("An error occured while loading Skwissh sensors for server " + this.adapter.getServer().getHostname() + ".\nPlease check your Skwissh settings...");
+			alertDialog.setMessage("An error occured while loading Skwissh sensors for server " + this.adapter.getServer().getHostname() + ".\nPlease try to reload or check your Skwissh settings...");
 			alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 				}

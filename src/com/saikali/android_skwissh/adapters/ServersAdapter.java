@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -121,6 +122,10 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 			gholder.serverGroupName = (TextView) convertView.findViewById(R.id.serverGroupName);
 			gholder.serversCount = (TextView) convertView.findViewById(R.id.serversCount);
 			convertView.setTag(gholder);
+
+			ExpandableListView elv = (ExpandableListView) parent;
+			for (int i = 0; i < this.getGroupCount(); i++)
+				elv.expandGroup(i);
 		} else {
 			gholder = (GroupViewHolder) convertView.getTag();
 		}
@@ -131,6 +136,7 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 			label = " server";
 		gholder.serversCount.setText(Integer.toString(serverGroup.getServers().size()) + label);
 		gholder.serversCount.setTypeface(tf);
+
 		return convertView;
 	}
 

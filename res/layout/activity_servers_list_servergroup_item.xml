@@ -2,46 +2,52 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#4d4d4d"
-    android:gravity="center"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="10dp" >
+    android:paddingTop="10px" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="10dp" >
+        android:layout_height="match_parent"
+        android:background="@drawable/radius_border"
+        android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/serverGroupName"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="left|center_vertical"
-            android:paddingLeft="50dp"
-            android:text="Development"
-            android:textColor="#e6e6e6"
-            android:textSize="22sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp" >
 
-        <TextView
-            android:id="@+id/serversCount"
+            <TextView
+                android:id="@+id/serverGroupName"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="40dp"
+                android:text="Development"
+                android:textColor="#e6e6e6"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/serversCount"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:gravity="right|center_vertical"
+                android:paddingRight="20dp"
+                android:text="6 servers"
+                android:textColor="#e6e6e6"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView1"
             android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="right|center_vertical"
-            android:paddingRight="20dp"
-            android:text="6 servers"
-            android:textColor="#e6e6e6"
-            android:textSize="18sp" />
+            android:layout_height="wrap_content"
+            android:background="#7FAE00"
+            android:contentDescription="@string/server_status_icon_description"
+            android:paddingBottom="6dp" />
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/server_status_icon_description"
-        android:background="#7FAE00"
-        android:paddingBottom="6dp" />
 
 </LinearLayout>

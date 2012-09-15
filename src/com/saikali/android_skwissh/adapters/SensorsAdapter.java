@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -109,6 +110,10 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 			convertView = inflater.inflate(R.layout.activity_serverdetail_sensor_item, null);
 			gholder.sensorName = (TextView) convertView.findViewById(R.id.sensorName);
 			convertView.setTag(gholder);
+
+			ExpandableListView elv = (ExpandableListView) parent;
+			for (int i = 0; i < this.getGroupCount(); i++)
+				elv.expandGroup(i);
 		} else {
 			gholder = (GroupViewHolder) convertView.getTag();
 		}

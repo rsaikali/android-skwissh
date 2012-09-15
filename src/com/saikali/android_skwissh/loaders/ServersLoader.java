@@ -29,13 +29,16 @@ public class ServersLoader extends AsyncTask<String, String, Boolean> {
 	}
 
 	protected void onPreExecute() {
-		this.dialog.setMessage("Loading Skwissh data...");
+		this.dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		this.dialog.setMessage("Loading Skwissh servers...");
 		this.dialog.show();
 	}
 
 	@Override
 	protected void onProgressUpdate(String... values) {
+		this.dialog.setMax(new Integer(values[2]).intValue());
 		this.dialog.setMessage(values[0]);
+		this.dialog.setProgress(new Integer(values[1]).intValue());
 		super.onProgressUpdate(values);
 	}
 
@@ -60,29 +63,8 @@ public class ServersLoader extends AsyncTask<String, String, Boolean> {
 				for (int i = 0; i < jsonServers.length(); i++) {
 
 					SkwisshServerItem server = new SkwisshServerItem(jsonServers.getJSONObject(i), server_group);
-					publishProgress("Loading Skwissh servers...\n" + server_group.getName() + "\n" + server.getHostname());
+					publishProgress("Loading Skwissh servers...\n" + server_group.getName() + "\n" + server.getHostname(), Integer.toString(i+1), Integer.toString(jsonServers.length()));
 					server_group.addServer(server);
-
-					// JSONArray jsonSensors =
-					// saj.getJSONSensors(server.getId());
-					// for (int j = 0; j < jsonSensors.length(); j++) {
-					// SkwisshSensorItem sensor = new
-					// SkwisshSensorItem(jsonSensors.getJSONObject(j), server);
-					// sensor.setGraphTypeName(SkwisshGraphTypeContent.ITEM_MAP.get(sensor.getGraphTypeId()).getName());
-					// server.addSensor(sensor);
-					// }
-					//
-					// for (int j = 0; j < server.getSensors().size(); j++) {
-					// SkwisshSensorItem sensor = server.getSensors().get(j);
-					// publishProgress("Loading Skwissh measures...\n" +
-					// server.getHostname() + "\n" + sensor.getDisplayName());
-					// JSONArray jsonMeasures = saj.getJSONMeasures(server,
-					// sensor);
-					// for (int k = 0; k < jsonMeasures.length(); k++)
-					// sensor.addMeasure(new
-					// SkwisshMeasureItem(jsonMeasures.getJSONObject(k)));
-					// }
-
 				}
 				if (server_group.getServers().size() != 0)
 					SkwisshServerGroupContent.addItem(server_group);
@@ -92,7 +74,7 @@ public class ServersLoader extends AsyncTask<String, String, Boolean> {
 			JSONArray jsonServers = saj.getJSONServers("999999");
 			for (int i = 0; i < jsonServers.length(); i++) {
 				SkwisshServerItem server = new SkwisshServerItem(jsonServers.getJSONObject(i), server_group);
-				publishProgress("Loading Skwissh servers...\n" + server_group.getName() + "\n" + server.getHostname());
+				publishProgress("Loading Skwissh servers...\n" + server_group.getName() + "\n" + server.getHostname(), Integer.toString(i + 1), Integer.toString(jsonServers.length()));
 				server_group.addServer(server);
 			}
 			if (server_group.getServers().size() != 0)
@@ -117,7 +99,7 @@ public class ServersLoader extends AsyncTask<String, String, Boolean> {
 		} else {
 			AlertDialog alertDialog = new AlertDialog.Builder(this.adapter.context).create();
 			alertDialog.setTitle("Error");
-			alertDialog.setMessage("An error occured while loading Skwissh data.\nPlease check your Skwissh settings...");
+			alertDialog.setMessage("An error occured while loading Skwissh data.\nPlease try to reload or check your Skwissh settings...");
 			alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 				}
