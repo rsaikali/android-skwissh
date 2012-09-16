@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,7 +41,7 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public Object getChild(int gPosition, int cPosition) {
-		return serverGroupItems.get(gPosition).getServers().get(cPosition);
+		return this.serverGroupItems.get(gPosition).getServers().get(cPosition);
 	}
 
 	@Override
@@ -52,19 +51,19 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-		final SkwisshServerItem server = (SkwisshServerItem) getChild(groupPosition, childPosition);
+		final SkwisshServerItem server = (SkwisshServerItem) this.getChild(groupPosition, childPosition);
 		ChildViewHolder childViewHolder;
 
 		if (convertView == null) {
 			childViewHolder = new ChildViewHolder();
-			convertView = inflater.inflate(R.layout.activity_servers_list_server_item, null);
+			convertView = this.inflater.inflate(R.layout.activity_servers_list_server_item, null);
 			childViewHolder.serverName = (TextView) convertView.findViewById(R.id.serverName);
 			childViewHolder.serverStatus = (ImageView) convertView.findViewById(R.id.imageViewServerStatus);
 			convertView.setTag(childViewHolder);
 		} else {
 			childViewHolder = (ChildViewHolder) convertView.getTag();
 		}
-		Resources res = context.getResources();
+		Resources res = this.context.getResources();
 		if (server.isAvailable()) {
 			childViewHolder.serverStatus.setImageDrawable(res.getDrawable(R.drawable.server_up));
 		} else {
@@ -72,7 +71,7 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 		}
 
 		childViewHolder.serverName.setText(server.getHostname());
-		childViewHolder.serverName.setTypeface(tf);
+		childViewHolder.serverName.setTypeface(this.tf);
 		childViewHolder.serverName.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -112,30 +111,27 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-		final SkwisshServerGroupItem serverGroup = (SkwisshServerGroupItem) getGroup(groupPosition);
+		final SkwisshServerGroupItem serverGroup = (SkwisshServerGroupItem) this.getGroup(groupPosition);
 		GroupViewHolder gholder;
 
 		if (convertView == null) {
 			gholder = new GroupViewHolder();
-			convertView = inflater.inflate(R.layout.activity_servers_list_servergroup_item, null);
+			convertView = this.inflater.inflate(R.layout.activity_servers_list_servergroup_item, null);
 
 			gholder.serverGroupName = (TextView) convertView.findViewById(R.id.serverGroupName);
 			gholder.serversCount = (TextView) convertView.findViewById(R.id.serversCount);
 			convertView.setTag(gholder);
-
-			ExpandableListView elv = (ExpandableListView) parent;
-			for (int i = 0; i < this.getGroupCount(); i++)
-				elv.expandGroup(i);
 		} else {
 			gholder = (GroupViewHolder) convertView.getTag();
 		}
 		gholder.serverGroupName.setText(serverGroup.getName());
-		gholder.serverGroupName.setTypeface(tf);
+		gholder.serverGroupName.setTypeface(this.tf);
 		String label = " servers";
-		if (serverGroup.getServers().size() == 1)
+		if (serverGroup.getServers().size() == 1) {
 			label = " server";
+		}
 		gholder.serversCount.setText(Integer.toString(serverGroup.getServers().size()) + label);
-		gholder.serversCount.setTypeface(tf);
+		gholder.serversCount.setTypeface(this.tf);
 
 		return convertView;
 	}
@@ -159,5 +155,4 @@ public class ServersAdapter extends BaseExpandableListAdapter {
 		public ImageView serverStatus;
 		public TextView serverName;
 	}
-
 }

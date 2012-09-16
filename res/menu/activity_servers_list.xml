@@ -3,10 +3,12 @@
     <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_menu_refresh"
-        android:title="@string/menu_refresh" android:showAsAction="ifRoom"/>
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_refresh" android:menuCategory="system"/>
     <item
         android:id="@+id/menu_settings"
         android:icon="@drawable/ic_menu_settings"
-        android:title="@string/menu_settings" android:showAsAction="ifRoom"/>
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_settings" android:menuCategory="system"/>
 
 </menu>

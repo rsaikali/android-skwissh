@@ -22,10 +22,10 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical|left"
-                android:paddingLeft="50dp"
+                android:paddingLeft="20dp"
                 android:text="TextView"
                 android:textColor="#e6e6e6"
-                android:textSize="22sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <ImageView
@@ -35,7 +35,6 @@
             android:background="#7FAE00"
             android:contentDescription="@string/server_status_icon_description"
             android:paddingBottom="6dp" />
-
     </LinearLayout>
 
 </LinearLayout>

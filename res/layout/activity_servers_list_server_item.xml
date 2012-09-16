@@ -24,6 +24,7 @@
         android:paddingLeft="20dp"
         android:paddingTop="10dp"
         android:text="Server Name"
+        android:textColor="#4D4D4D"
         android:textSize="17sp"
         tools:ignore="HardcodedText" />
 

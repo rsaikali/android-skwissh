@@ -3,15 +3,14 @@ package com.saikali.android_skwissh.adapters;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.achartengine.GraphicalView;
-
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -46,7 +45,7 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public Object getChild(int gPosition, int cPosition) {
-		return sensorsItems.get(gPosition);
+		return this.sensorsItems.get(gPosition);
 	}
 
 	@Override
@@ -56,19 +55,19 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-		final SkwisshSensorItem sensor = (SkwisshSensorItem) getChild(groupPosition, childPosition);
+		final SkwisshSensorItem sensor = (SkwisshSensorItem) this.getChild(groupPosition, childPosition);
 		ChildViewHolder childViewHolder;
 
 		if (convertView == null) {
 			childViewHolder = new ChildViewHolder();
-			convertView = inflater.inflate(R.layout.activity_serverdetail_mesure_item, null);
+			convertView = this.inflater.inflate(R.layout.activity_serverdetail_mesure_item, null);
 			childViewHolder.chartLayout = (LinearLayout) convertView.findViewById(R.id.chartLayout);
 			convertView.setTag(childViewHolder);
 		} else {
 			childViewHolder = (ChildViewHolder) convertView.getTag();
 		}
 
-		GraphicalView graphView = new SensorGraphViewBuilder(this.context, sensor).createGraphView();
+		View graphView = new SensorGraphViewBuilder(this.context, sensor).createGraphView();
 		childViewHolder.chartLayout.removeAllViews();
 		childViewHolder.chartLayout.addView(graphView, parent.getMeasuredWidth(), parent.getMeasuredHeight() / 2);
 
@@ -102,23 +101,21 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-		final SkwisshSensorItem sensor = (SkwisshSensorItem) getGroup(groupPosition);
+		final SkwisshSensorItem sensor = (SkwisshSensorItem) this.getGroup(groupPosition);
 		GroupViewHolder gholder;
 
 		if (convertView == null) {
 			gholder = new GroupViewHolder();
-			convertView = inflater.inflate(R.layout.activity_serverdetail_sensor_item, null);
+			convertView = this.inflater.inflate(R.layout.activity_serverdetail_sensor_item, null);
 			gholder.sensorName = (TextView) convertView.findViewById(R.id.sensorName);
 			convertView.setTag(gholder);
-
-			ExpandableListView elv = (ExpandableListView) parent;
-			for (int i = 0; i < this.getGroupCount(); i++)
-				elv.expandGroup(i);
 		} else {
 			gholder = (GroupViewHolder) convertView.getTag();
 		}
-		gholder.sensorName.setText(sensor.getDisplayName());
-		gholder.sensorName.setTypeface(tf);
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.context.getApplicationContext());
+		String period = sharedPrefs.getString("default_period", "day");
+		gholder.sensorName.setText("Last " + period + " " + sensor.getDisplayName() + " for " + this.server.getHostname());
+		gholder.sensorName.setTypeface(this.tf);
 		return convertView;
 	}
 

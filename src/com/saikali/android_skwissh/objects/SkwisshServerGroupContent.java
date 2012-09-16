@@ -23,7 +23,7 @@ public class SkwisshServerGroupContent {
 			this.id = Integer.toString(json.getInt("pk"));
 			this.name = json.getJSONObject("fields").get("name").toString();
 		}
-		
+
 		public SkwisshServerGroupItem() {
 			this.id = "-1";
 			this.name = "Uncategorized";
@@ -32,8 +32,8 @@ public class SkwisshServerGroupContent {
 		public void addServer(SkwisshServerItem sensor) {
 			this.SERVERS.add(sensor);
 			this.SERVERS_MAP.put(sensor.getId(), sensor);
-		}		
-		
+		}
+
 		public ArrayList<SkwisshServerItem> getServers() {
 			return this.SERVERS;
 		}
@@ -41,7 +41,7 @@ public class SkwisshServerGroupContent {
 		public SkwisshServerItem getServer(String server_id) {
 			return this.SERVERS_MAP.get(server_id);
 		}
-		
+
 		public String getId() {
 			return this.id;
 		}

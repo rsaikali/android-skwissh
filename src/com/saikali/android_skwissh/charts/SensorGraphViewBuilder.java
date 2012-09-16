@@ -6,7 +6,6 @@ import java.util.Date;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.chart.BarChart.Type;
-import org.achartengine.chart.LineChart;
 import org.achartengine.model.CategorySeries;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -19,7 +18,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
+import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.saikali.android_skwissh.objects.SkwisshSensorItem;
 
@@ -42,19 +45,20 @@ public class SensorGraphViewBuilder {
 		this.context = context;
 	}
 
-	public GraphicalView createGraphView() {
-		if (sensor.getGraphTypeName().equals("pie"))
+	public View createGraphView() {
+		if (this.sensor.getGraphTypeName().equals("pie"))
 			return this.createPieView();
-		else if (sensor.getGraphTypeName().equals("linegraph"))
+		else if (this.sensor.getGraphTypeName().equals("linegraph"))
 			return this.createLineView();
-		else if (sensor.getGraphTypeName().equals("linegraph_stacked"))
+		else if (this.sensor.getGraphTypeName().equals("linegraph_stacked"))
 			return this.createLineStackedView();
-		else if (sensor.getGraphTypeName().equals("bargraph"))
+		else if (this.sensor.getGraphTypeName().equals("bargraph"))
 			return this.createBarView();
-		else if (sensor.getGraphTypeName().equals("bargraph_groups"))
+		else if (this.sensor.getGraphTypeName().equals("bargraph_groups"))
 			return this.createBarGroupView();
-		else
-			return new GraphicalView(this.context, new LineChart(new XYMultipleSeriesDataset(), new XYMultipleSeriesRenderer()));
+		else if (this.sensor.getGraphTypeName().equals("text"))
+			return this.createTextView();
+		return null;
 
 	}
 
@@ -68,7 +72,7 @@ public class SensorGraphViewBuilder {
 		renderer.setPanEnabled(false);
 		renderer.setShowLegend(false);
 		renderer.setShowGrid(true);
-		renderer.setMargins(margins);
+		renderer.setMargins(this.margins);
 		renderer.setFitLegend(true);
 		renderer.setAxesColor(this.fontColor);
 		renderer.setLabelsColor(this.fontColor);
@@ -81,21 +85,21 @@ public class SensorGraphViewBuilder {
 		// Categories
 		CategorySeries categorySeries = new CategorySeries(this.sensor.getDisplayName());
 
-		String[] labels = sensor.getLabels().split(";");
-		String[] values = sensor.getMeasures().get(0).getValue().split(";");
+		String[] labels = this.sensor.getLabels().split(";");
+		String[] values = this.sensor.getMeasures().get(0).getValue().split(";");
 		for (int i = 0; i < values.length; i++) {
 			categorySeries.add(labels[i], new Double(values[i]));
 		}
 
 		// Renderer
-		DefaultRenderer renderer = (DefaultRenderer) this.getDefaultRenderer();
-		for (int color : Arrays.copyOfRange(colors, 0, values.length)) {
+		DefaultRenderer renderer = this.getDefaultRenderer();
+		for (int color : Arrays.copyOfRange(this.colors, 0, values.length)) {
 			SimpleSeriesRenderer r = new SimpleSeriesRenderer();
 			r.setColor(color);
 			renderer.addSeriesRenderer(r);
 		}
 
-		return ChartFactory.getPieChartView(context, categorySeries, renderer);
+		return ChartFactory.getPieChartView(this.context, categorySeries, renderer);
 	}
 
 	private GraphicalView createLineView() {
@@ -103,13 +107,13 @@ public class SensorGraphViewBuilder {
 		// Categories
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 
-		String[] labels = sensor.getLabels().split(";");
-		int nb_values = sensor.getMeasures().get(0).getValue().split(";").length;
+		String[] labels = this.sensor.getLabels().split(";");
+		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
-			for (int j = 0; j < sensor.getMeasures().size(); j++) {
-				Double value = new Double(sensor.getMeasures().get(j).getValue().split(";")[i]);
-				Date date = sensor.getMeasures().get(j).getTimestamp();
+			for (int j = 0; j < this.sensor.getMeasures().size(); j++) {
+				Double value = new Double(this.sensor.getMeasures().get(j).getValue().split(";")[i]);
+				Date date = this.sensor.getMeasures().get(j).getTimestamp();
 				timeSerie.add(date, value);
 			}
 			dataset.addSeries(timeSerie);
@@ -117,7 +121,7 @@ public class SensorGraphViewBuilder {
 
 		// Renderer
 		XYMultipleSeriesRenderer renderer = this.getDefaultRenderer();
-		for (int color : Arrays.copyOfRange(colors, 0, nb_values)) {
+		for (int color : Arrays.copyOfRange(this.colors, 0, nb_values)) {
 			XYSeriesRenderer r = new XYSeriesRenderer();
 			r.setColor(color);
 			r.setFillBelowLine(true);
@@ -140,10 +144,11 @@ public class SensorGraphViewBuilder {
 		renderer.setYAxisMin(0);
 
 		String dateFormat = "HH:mm\nMMM dd";
-		if (this.period.equals("hour"))
+		if (this.period.equals("hour")) {
 			dateFormat = "HH:mm";
+		}
 
-		return ChartFactory.getTimeChartView(context, dataset, renderer, dateFormat);
+		return ChartFactory.getTimeChartView(this.context, dataset, renderer, dateFormat);
 	}
 
 	private GraphicalView createLineStackedView() {
@@ -151,16 +156,16 @@ public class SensorGraphViewBuilder {
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
 
-		String[] labels = sensor.getLabels().split(";");
-		int nb_values = sensor.getMeasures().get(0).getValue().split(";").length;
+		String[] labels = this.sensor.getLabels().split(";");
+		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
 
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
-			for (int j = 0; j < sensor.getMeasures().size(); j++) {
-				Date date = sensor.getMeasures().get(j).getTimestamp();
+			for (int j = 0; j < this.sensor.getMeasures().size(); j++) {
+				Date date = this.sensor.getMeasures().get(j).getTimestamp();
 				Double value = 0.0;
 				for (int k = 0; k <= i; k++) {
-					Double old_value = new Double(sensor.getMeasures().get(j).getValue().split(";")[k]);
+					Double old_value = new Double(this.sensor.getMeasures().get(j).getValue().split(";")[k]);
 					value += old_value;
 				}
 				timeSerie.add(date, value);
@@ -200,7 +205,7 @@ public class SensorGraphViewBuilder {
 
 		renderer.setBarSpacing(0);
 
-		return ChartFactory.getLineChartView(context, dataset, renderer);
+		return ChartFactory.getLineChartView(this.context, dataset, renderer);
 	}
 
 	private GraphicalView createBarView() {
@@ -208,16 +213,16 @@ public class SensorGraphViewBuilder {
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
 
-		String[] labels = sensor.getLabels().split(";");
-		int nb_values = sensor.getMeasures().get(0).getValue().split(";").length;
+		String[] labels = this.sensor.getLabels().split(";");
+		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
 
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
-			for (int j = 0; j < sensor.getMeasures().size(); j++) {
-				Date date = sensor.getMeasures().get(j).getTimestamp();
+			for (int j = 0; j < this.sensor.getMeasures().size(); j++) {
+				Date date = this.sensor.getMeasures().get(j).getTimestamp();
 				Double value = 0.0;
 				for (int k = 0; k <= i; k++) {
-					Double old_value = new Double(sensor.getMeasures().get(j).getValue().split(";")[k]);
+					Double old_value = new Double(this.sensor.getMeasures().get(j).getValue().split(";")[k]);
 					value += old_value;
 				}
 				timeSerie.add(date, value);
@@ -254,7 +259,7 @@ public class SensorGraphViewBuilder {
 
 		renderer.setBarSpacing(0.2);
 
-		return ChartFactory.getBarChartView(context, dataset, renderer, Type.STACKED);
+		return ChartFactory.getBarChartView(this.context, dataset, renderer, Type.STACKED);
 	}
 
 	private GraphicalView createBarGroupView() {
@@ -262,14 +267,14 @@ public class SensorGraphViewBuilder {
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
 
-		String[] labels = sensor.getLabels().split(";");
-		int nb_values = sensor.getMeasures().get(0).getValue().split(";").length;
+		String[] labels = this.sensor.getLabels().split(";");
+		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
 
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
-			for (int j = 0; j < sensor.getMeasures().size(); j++) {
-				Date date = sensor.getMeasures().get(j).getTimestamp();
-				Double value = new Double(sensor.getMeasures().get(j).getValue().split(";")[i]);
+			for (int j = 0; j < this.sensor.getMeasures().size(); j++) {
+				Date date = this.sensor.getMeasures().get(j).getTimestamp();
+				Double value = new Double(this.sensor.getMeasures().get(j).getValue().split(";")[i]);
 				timeSerie.add(date, value);
 			}
 			tmp_dataset.addSeries(timeSerie);
@@ -281,7 +286,7 @@ public class SensorGraphViewBuilder {
 		}
 
 		// Renderer
-		XYMultipleSeriesRenderer renderer = getDefaultRenderer();
+		XYMultipleSeriesRenderer renderer = this.getDefaultRenderer();
 
 		for (int i = Arrays.copyOfRange(this.colors, 0, nb_values).length - 1; i >= 0; i--) {
 			int color = Arrays.copyOfRange(this.colors, 0, nb_values)[i];
@@ -303,6 +308,21 @@ public class SensorGraphViewBuilder {
 
 		renderer.setBarSpacing(0.2);
 
-		return ChartFactory.getBarChartView(context, dataset, renderer, Type.DEFAULT);
+		return ChartFactory.getBarChartView(this.context, dataset, renderer, Type.DEFAULT);
+	}
+
+	@SuppressWarnings("deprecation")
+	private View createTextView() {
+		final TextView tv = new TextView(this.context);
+		String str = this.sensor.getMeasures().get(0).getValue();
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+		tv.setLayoutParams(params);
+		tv.setPadding(10, 10, 10, 10);
+		tv.setBackgroundColor(Color.parseColor("#303030"));
+		tv.setTextColor(Color.parseColor("#7FAE00"));
+		tv.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
+		tv.setText(str);
+		tv.setTextSize(16);
+		return tv;
 	}
 }

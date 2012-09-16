@@ -1,59 +1,174 @@
 package com.saikali.android_skwissh;
 
-import android.app.Activity;
+import org.json.JSONArray;
+
+import android.app.AlertDialog;
+import android.app.ExpandableListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 
 import com.saikali.android_skwissh.adapters.ServersAdapter;
-import com.saikali.android_skwissh.loaders.ServersLoader;
+import com.saikali.android_skwissh.objects.SkwisshGraphTypeContent;
+import com.saikali.android_skwissh.objects.SkwisshGraphTypeContent.SkwisshGraphTypeItem;
+import com.saikali.android_skwissh.objects.SkwisshServerContent.SkwisshServerItem;
+import com.saikali.android_skwissh.objects.SkwisshServerGroupContent;
+import com.saikali.android_skwissh.objects.SkwisshServerGroupContent.SkwisshServerGroupItem;
+import com.saikali.android_skwissh.utils.Constants;
+import com.saikali.android_skwissh.utils.SkwisshAjaxHelper;
+import com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshBase;
+import com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshBase.OnRefreshListener;
+import com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshExpandableListView;
 
-public class ServersListActivity extends Activity {
+public class ServersListActivity extends ExpandableListActivity {
 
-	private ExpandableListView expandableList = null;
+	private PullToRefreshExpandableListView expandableList = null;
 	private ServersAdapter adapter;
-	private ServersLoader serversLoader;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_servers_list);
+		this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+		this.setContentView(R.layout.activity_servers_list);
 
-		expandableList = (ExpandableListView) findViewById(R.id.expandableListView_servers);
+		this.expandableList = (PullToRefreshExpandableListView) this.findViewById(R.id.pull_to_refresh_serverslistview);
+		this.expandableList.getRefreshableView().setGroupIndicator(null);
+		this.expandableList.setShowIndicator(false);
+		this.expandableList.setRefreshingLabel("Loading Skwissh servers...");
+		this.expandableList.setOnRefreshListener(new OnRefreshListener<ExpandableListView>() {
+			@Override
+			public void onRefresh(PullToRefreshBase<ExpandableListView> refreshView) {
+				new ServersLoader().execute();
+			}
+		});
 
-		adapter = new ServersAdapter(this);
-		expandableList.setAdapter(adapter);
+		TextView headerTitleText = (TextView) this.findViewById(R.id.headerTitleText);
+		headerTitleText.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Days.otf"));
 
-		serversLoader = new ServersLoader(adapter);
-		serversLoader.execute();
+		TextView headerTitleTextSSH = (TextView) this.findViewById(R.id.headerTitleTextSSH);
+		headerTitleTextSSH.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Days.otf"));
+
+		TextView headerSubtitle = (TextView) this.findViewById(R.id.headerSubtitle);
+		headerSubtitle.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Days.otf"));
+
+		TextView pullToRefresh = (TextView) this.findViewById(R.id.pull_to_refresh_text);
+		pullToRefresh.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Oxygen.otf"));
+
+		this.adapter = new ServersAdapter(this);
+		this.expandableList.getRefreshableView().setAdapter(this.adapter);
+		this.expandableList.setRefreshing();
+		new ServersLoader().execute();
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_servers_list, menu);
+		this.getMenuInflater().inflate(R.menu.activity_servers_list, menu);
 		return true;
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		serversLoader = new ServersLoader(adapter);
-		serversLoader.execute();
+		this.expandableList.setRefreshing();
+		new ServersLoader().execute();
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
-			startActivityForResult(new Intent(this, SettingsActivity.class), 0);
+			this.startActivityForResult(new Intent(this, SettingsActivity.class), 0);
 			return true;
 		case R.id.menu_refresh:
-			serversLoader = new ServersLoader(adapter);
-			serversLoader.execute();
+			this.expandableList.setRefreshing();
+			new ServersLoader().execute();
 			return true;
 		}
 		return false;
+	}
+
+	public class ServersLoader extends AsyncTask<String, String, Boolean> {
+
+		@Override
+		protected Boolean doInBackground(String... params) {
+			try {
+				SkwisshServerGroupContent.ITEMS.clear();
+				SkwisshServerGroupContent.ITEM_MAP.clear();
+
+				SkwisshAjaxHelper saj = new SkwisshAjaxHelper(ServersListActivity.this.adapter.context);
+
+				JSONArray jsonGraphTypes = saj.getJSONGraphTypes();
+				for (int i = 0; i < jsonGraphTypes.length(); i++) {
+					SkwisshGraphTypeContent.addItem(new SkwisshGraphTypeItem(jsonGraphTypes.getJSONObject(i)));
+				}
+
+				JSONArray jsonServerGroups = saj.getJSONServerGroups();
+				for (int l = 0; l < jsonServerGroups.length(); l++) {
+					SkwisshServerGroupItem server_group = new SkwisshServerGroupItem(jsonServerGroups.getJSONObject(l));
+
+					JSONArray jsonServers = saj.getJSONServers(server_group.getId());
+					for (int i = 0; i < jsonServers.length(); i++) {
+
+						SkwisshServerItem server = new SkwisshServerItem(jsonServers.getJSONObject(i), server_group);
+						server_group.addServer(server);
+					}
+					if (server_group.getServers().size() != 0) {
+						SkwisshServerGroupContent.addItem(server_group);
+					}
+				}
+
+				SkwisshServerGroupItem server_group = new SkwisshServerGroupItem();
+				JSONArray jsonServers = saj.getJSONServers("999999");
+				for (int i = 0; i < jsonServers.length(); i++) {
+					SkwisshServerItem server = new SkwisshServerItem(jsonServers.getJSONObject(i), server_group);
+					server_group.addServer(server);
+				}
+				if (server_group.getServers().size() != 0) {
+					SkwisshServerGroupContent.addItem(server_group);
+				}
+
+				saj.skwisshLogout();
+				return true;
+			} catch (Exception e) {
+				Log.e(Constants.SKWISSH_TAG, "ServersLoader", e);
+				return false;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(Boolean success) {
+			if (success) {
+				ServersListActivity.this.adapter.updateEntries();
+
+				for (int i = 0; i < ServersListActivity.this.adapter.getGroupCount(); i++) {
+					ServersListActivity.this.expandableList.getRefreshableView().expandGroup(i);
+				}
+			} else {
+				AlertDialog alertDialog = new AlertDialog.Builder(ServersListActivity.this.adapter.context).create();
+				alertDialog.setTitle("Error");
+				alertDialog.setMessage("An error occured while loading Skwissh data.\nPlease try to reload or check your Skwissh settings...");
+				alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				});
+				alertDialog.show();
+			}
+			ServersListActivity.this.expandableList.onRefreshComplete();
+			super.onPostExecute(true);
+		}
 	}
 }

@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.saikali.android_skwissh.objects.SkwisshSensorItem;
 import com.saikali.android_skwissh.objects.SkwisshServerContent.SkwisshServerItem;
+import com.turbomanage.httpclient.AbstractHttpClient;
 import com.turbomanage.httpclient.BasicHttpClient;
 import com.turbomanage.httpclient.HttpResponse;
 import com.turbomanage.httpclient.ParameterMap;
@@ -36,7 +37,7 @@ public class SkwisshAjaxHelper {
 	private void skwisshLogin() {
 		BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
 		httpclient.get("/login/?next=/skwissh", null);
-		List<HttpCookie> cookies = BasicHttpClient.getCookieManager().getCookieStore().getCookies();
+		List<HttpCookie> cookies = AbstractHttpClient.getCookieManager().getCookieStore().getCookies();
 		for (int i = 0; i < cookies.size(); i++) {
 			if (cookies.get(i).getName().equals("csrftoken")) {
 				this.csrf_token = cookies.get(i).getValue();

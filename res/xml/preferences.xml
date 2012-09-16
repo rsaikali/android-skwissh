@@ -22,20 +22,21 @@
             android:defaultValue="test"
             android:dialogMessage="Enter your Skwissh password"
             android:dialogTitle="Skwissh password"
+            android:inputType="textPassword"
             android:key="skwissh_password"
             android:summary="Define the password used by this application to log into your Skwissh server."
-            android:title="Skwissh password"
-            android:inputType="textPassword" />
+            android:title="Skwissh password" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="View options" android:key="view_category">
+    <PreferenceCategory
+        android:key="view_category"
+        android:title="View options" >
         <ListPreference
-            android:key="default_period"
-            android:title="Default period view"
-            android:summary="Define default period for measures (hour, day, week or month)"
             android:defaultValue="day"
             android:entries="@array/period"
             android:entryValues="@array/periodValues"
-        />  
+            android:key="default_period"
+            android:summary="Define default period for measures (hour, day, week or month)"
+            android:title="Default period view" />
     </PreferenceCategory>
 
 </PreferenceScreen>
