@@ -75,6 +75,49 @@
         </LinearLayout>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/radius_border"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp" >
+
+            <TextView
+                android:id="@+id/serverDetailName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|left"
+                android:paddingLeft="20dp"
+                android:text="TextView"
+                android:textColor="#e6e6e6"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/serverDetailPeriod"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:paddingRight="10dp"
+                android:text="last hour"
+                android:textColor="#e6e6e6"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/radius_border_green"
+            android:contentDescription="@string/server_status_icon_description" />
+    </LinearLayout>
+
     <com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshExpandableListView
         android:id="@+id/pull_to_refresh_sensorslistview"
         android:layout_width="fill_parent"

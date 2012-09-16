@@ -110,7 +110,7 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 		} else {
 			gholder = (GroupViewHolder) convertView.getTag();
 		}
-		gholder.sensorName.setText(sensor.getDisplayName() + " on " + this.server.getHostname());
+		gholder.sensorName.setText(sensor.getDisplayName());
 		gholder.sensorName.setTypeface(this.tf);
 		return convertView;
 	}

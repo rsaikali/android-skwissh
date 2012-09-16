@@ -56,10 +56,16 @@ public class ServerDetailActivity extends Activity {
 				new SensorsLoader().execute();
 			}
 		});
-
-		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		String period = sharedPrefs.getString("default_period", "day");
-		this.setTitle(this.server.getHostname() + " activity on last " + period + ".");
+
+		TextView serverDetailPeriod = (TextView) this.findViewById(R.id.serverDetailPeriod);
+		serverDetailPeriod.setText("Last " + period);
+		serverDetailPeriod.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Oxygen.otf"));
+
+		TextView serverDetailName = (TextView) this.findViewById(R.id.serverDetailName);
+		serverDetailName.setText(server.getHostname());
+		serverDetailName.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Oxygen.otf"));
 
 		TextView headerTitleText = (TextView) this.findViewById(R.id.headerTitleText);
 		headerTitleText.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Days.otf"));
@@ -94,9 +100,6 @@ public class ServerDetailActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-		String period = sharedPrefs.getString("default_period", "day");
-		this.setTitle(this.server.getHostname() + " activity on last " + period + ".");
 		this.expandableList.setRefreshing();
 		new SensorsLoader().execute();
 
