@@ -49,7 +49,7 @@ public class ServerDetailActivity extends Activity {
 		this.expandableList = (PullToRefreshExpandableListView) this.findViewById(R.id.pull_to_refresh_sensorslistview);
 		this.expandableList.getRefreshableView().setGroupIndicator(null);
 		this.expandableList.setShowIndicator(false);
-		this.expandableList.setRefreshingLabel("Loading Skwissh measures for server " + ServerDetailActivity.this.server.getHostname() + "...");
+		this.expandableList.setRefreshingLabel("Loading Skwissh sensors...");
 		this.expandableList.setOnRefreshListener(new OnRefreshListener<ExpandableListView>() {
 			@Override
 			public void onRefresh(PullToRefreshBase<ExpandableListView> refreshView) {
