@@ -100,9 +100,14 @@ public class ServerDetailActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		String period = sharedPrefs.getString("default_period", "day");
+		TextView serverDetailPeriod = (TextView) this.findViewById(R.id.serverDetailPeriod);
+		serverDetailPeriod.setText("Last " + period);
+		
 		this.expandableList.setRefreshing();
 		new SensorsLoader().execute();
-
 	}
 
 	@Override
