@@ -112,9 +112,7 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 		} else {
 			gholder = (GroupViewHolder) convertView.getTag();
 		}
-		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.context.getApplicationContext());
-		String period = sharedPrefs.getString("default_period", "day");
-		gholder.sensorName.setText("Last " + period + " " + sensor.getDisplayName() + " for " + this.server.getHostname());
+		gholder.sensorName.setText(sensor.getDisplayName() + " on " + this.server.getHostname());
 		gholder.sensorName.setTypeface(this.tf);
 		return convertView;
 	}

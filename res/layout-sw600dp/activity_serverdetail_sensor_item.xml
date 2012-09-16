@@ -25,7 +25,7 @@
                 android:paddingLeft="20dp"
                 android:text="TextView"
                 android:textColor="#e6e6e6"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <ImageView

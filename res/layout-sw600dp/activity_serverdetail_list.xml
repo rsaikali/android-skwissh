@@ -11,20 +11,18 @@
         android:id="@+id/header"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="10dp"
         android:minWidth="10dp" >
 
         <ImageView
             android:id="@+id/imageHeaderLogo"
-            android:layout_width="42dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="15dp"
-            android:layout_marginTop="4dp"
-            android:adjustViewBounds="true"
-            android:cropToPadding="false"
-            android:scaleType="fitXY"
+            android:layout_marginTop="12dp"
+            android:scaleType="center"
             android:src="@drawable/logo" />
 
         <LinearLayout
@@ -50,7 +48,7 @@
                     android:text="SKWI"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="#4D4D4D"
-                    android:textSize="40sp" />
+                    android:textSize="90sp" />
 
                 <TextView
                     android:id="@+id/headerTitleTextSSH"
@@ -64,7 +62,7 @@
                     android:text="SSH"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="#7FAE00"
-                    android:textSize="40sp" />
+                    android:textSize="90sp" />
             </LinearLayout>
 
             <TextView
@@ -73,8 +71,7 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="2dp"
                 android:text="KEEP AN EYE ON YOUR SERVERS..."
-                android:textColor="#4D4D4D"
-                android:textSize="10dp" />
+                android:textColor="#4D4D4D" />
         </LinearLayout>
     </LinearLayout>
 

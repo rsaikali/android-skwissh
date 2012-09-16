@@ -27,7 +27,7 @@
                 android:paddingLeft="20dp"
                 android:text="Development"
                 android:textColor="#e6e6e6"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/serversCount"
@@ -37,7 +37,7 @@
                 android:paddingRight="20dp"
                 android:text="6 servers"
                 android:textColor="#e6e6e6"
-                android:textSize="18sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
         <ImageView
