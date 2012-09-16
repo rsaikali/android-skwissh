@@ -3,3 +3,8 @@ apk
 apk/android-skwissh.apk
 bin
 apk
+bin
+bin/android-skwissh.apk
+bin/android-skwissh.apk
+bin/classes.dex
+bin/resources.ap_
