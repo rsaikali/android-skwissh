@@ -11,8 +11,7 @@
         android:id="@+id/header"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
         android:minWidth="10dp" >
 
         <ImageView
@@ -78,6 +77,7 @@
     <com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshExpandableListView
         android:id="@+id/pull_to_refresh_serverslistview"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="10dp" />
 
 </LinearLayout>

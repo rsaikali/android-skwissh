@@ -67,7 +67,21 @@ public class SensorsAdapter extends BaseExpandableListAdapter {
 
 		View graphView = new SensorGraphViewBuilder(this.context, sensor).createGraphView();
 		childViewHolder.chartLayout.removeAllViews();
-		childViewHolder.chartLayout.addView(graphView, parent.getMeasuredWidth(), parent.getMeasuredHeight() / 2);
+		if (sensor.getGraphTypeName().equals("text")) {
+			childViewHolder.chartLayout.addView(graphView);
+		} else {
+			double w = parent.getMeasuredWidth();
+			double ratio = 0;
+			if (parent.getMeasuredWidth() > parent.getMeasuredHeight()) {
+				ratio = parent.getMeasuredWidth() / parent.getMeasuredHeight();
+			} else {
+				ratio = parent.getMeasuredHeight() / parent.getMeasuredWidth();
+			}
+
+			double h = w / (ratio * 1.5);
+
+			childViewHolder.chartLayout.addView(graphView, (int) w, (int) h);
+		}
 
 		return convertView;
 	}

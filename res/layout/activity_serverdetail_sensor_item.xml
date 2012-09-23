@@ -29,12 +29,13 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/imageId1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#7FAE00"
             android:contentDescription="@string/server_status_icon_description"
             android:paddingBottom="6dp" />
+
     </LinearLayout>
 
 </LinearLayout>

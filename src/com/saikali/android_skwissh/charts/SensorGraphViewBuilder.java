@@ -1,10 +1,11 @@
 package com.saikali.android_skwissh.charts;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
 import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
 import org.achartengine.chart.BarChart.Type;
 import org.achartengine.model.CategorySeries;
 import org.achartengine.model.TimeSeries;
@@ -36,7 +37,7 @@ public class SensorGraphViewBuilder {
 	private String period;
 	private SkwisshSensorItem sensor;
 	private Context context;
-	private int[] margins = new int[] { 50, 50, 50, 20 };
+	private int[] margins = new int[] { 20, 80, 30, 40 };
 
 	public SensorGraphViewBuilder(Context context, SkwisshSensorItem sensor) {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
@@ -67,8 +68,8 @@ public class SensorGraphViewBuilder {
 		renderer.setApplyBackgroundColor(true);
 		renderer.setInScroll(true);
 		renderer.setAntialiasing(true);
-		renderer.setLabelsTextSize(15);
-		renderer.setLegendTextSize(15);
+		renderer.setLabelsTextSize(14);
+		renderer.setLegendTextSize(14);
 		renderer.setPanEnabled(false);
 		renderer.setShowLegend(false);
 		renderer.setShowGrid(true);
@@ -80,13 +81,18 @@ public class SensorGraphViewBuilder {
 		return renderer;
 	}
 
-	private GraphicalView createPieView() {
+	private View createPieView() {
 
 		// Categories
 		CategorySeries categorySeries = new CategorySeries(this.sensor.getDisplayName());
 
 		String[] labels = this.sensor.getLabels().split(";");
-		String[] values = this.sensor.getMeasures().get(0).getValue().split(";");
+		String[] values = new String[] {};
+		try {
+			values = this.sensor.getMeasures().get(0).getValue().split(";");
+		} catch (IndexOutOfBoundsException ioobe) {
+			return this.createTextView();
+		}
 		for (int i = 0; i < values.length; i++) {
 			categorySeries.add(labels[i], new Double(values[i]));
 		}
@@ -98,17 +104,24 @@ public class SensorGraphViewBuilder {
 			r.setColor(color);
 			renderer.addSeriesRenderer(r);
 		}
+		renderer.setPanEnabled(false);
+		renderer.setMargins(new int[] { 0, 0, 0, 0 });
 
 		return ChartFactory.getPieChartView(this.context, categorySeries, renderer);
 	}
 
-	private GraphicalView createLineView() {
+	private View createLineView() {
 
 		// Categories
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 
 		String[] labels = this.sensor.getLabels().split(";");
-		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		int nb_values = 0;
+		try {
+			nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		} catch (IndexOutOfBoundsException ioobe) {
+			return this.createTextView();
+		}
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
 			for (int j = 0; j < this.sensor.getMeasures().size(); j++) {
@@ -132,8 +145,8 @@ public class SensorGraphViewBuilder {
 		}
 
 		renderer.setShowLegend(true);
-		renderer.setPanEnabled(true, false);
-		renderer.setZoomEnabled(true, false);
+		renderer.setPanEnabled(false, false);
+		renderer.setZoomEnabled(false, false);
 
 		renderer.setGridColor(this.lightFontColor);
 		renderer.setMarginsColor(this.backgroundColor);
@@ -143,21 +156,35 @@ public class SensorGraphViewBuilder {
 		renderer.setYLabelsAlign(Align.RIGHT);
 		renderer.setYAxisMin(0);
 
+		renderer.setXLabels(0);
+		int count = dataset.getSeriesAt(0).getItemCount();
 		String dateFormat = "HH:mm\nMMM dd";
 		if (this.period.equals("hour")) {
 			dateFormat = "HH:mm";
 		}
+		for (int i = 0; i < count; i = i + (count / 5)) {
+			Double d = dataset.getSeriesAt(0).getX(i);
+			Date date = this.sensor.getMeasures().get(i).getTimestamp();
+			String s = new SimpleDateFormat(dateFormat).format(date);
+			renderer.addXTextLabel(d, s);
+		}
+		this.setYAxisValues(dataset, renderer);
 
 		return ChartFactory.getTimeChartView(this.context, dataset, renderer, dateFormat);
 	}
 
-	private GraphicalView createLineStackedView() {
+	private View createLineStackedView() {
 
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
 
 		String[] labels = this.sensor.getLabels().split(";");
-		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		int nb_values = 0;
+		try {
+			nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		} catch (IndexOutOfBoundsException ioobe) {
+			return this.createTextView();
+		}
 
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
@@ -192,8 +219,8 @@ public class SensorGraphViewBuilder {
 		}
 
 		renderer.setShowLegend(true);
-		renderer.setPanEnabled(true, false);
-		renderer.setZoomEnabled(true, false);
+		renderer.setPanEnabled(false, false);
+		renderer.setZoomEnabled(false, false);
 
 		renderer.setGridColor(this.lightFontColor);
 		renderer.setMarginsColor(this.backgroundColor);
@@ -203,18 +230,37 @@ public class SensorGraphViewBuilder {
 		renderer.setYLabelsAlign(Align.RIGHT);
 		renderer.setYAxisMin(0);
 
+		renderer.setXLabels(0);
+		int count = dataset.getSeriesAt(0).getItemCount();
+		String dateFormat = "HH:mm\nMMM dd";
+		if (this.period.equals("hour")) {
+			dateFormat = "HH:mm";
+		}
+		for (int i = 0; i < count; i = i + (count / 5)) {
+			Double d = dataset.getSeriesAt(0).getX(i);
+			Date date = this.sensor.getMeasures().get(i).getTimestamp();
+			String s = new SimpleDateFormat(dateFormat).format(date);
+			renderer.addXTextLabel(d, s);
+		}
+		this.setYAxisValues(dataset, renderer);
+
 		renderer.setBarSpacing(0);
 
 		return ChartFactory.getLineChartView(this.context, dataset, renderer);
 	}
 
-	private GraphicalView createBarView() {
+	private View createBarView() {
 
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
 
 		String[] labels = this.sensor.getLabels().split(";");
-		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		int nb_values = 0;
+		try {
+			nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		} catch (IndexOutOfBoundsException ioobe) {
+			return this.createTextView();
+		}
 
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
@@ -246,8 +292,8 @@ public class SensorGraphViewBuilder {
 		}
 
 		renderer.setShowLegend(true);
-		renderer.setPanEnabled(true, false);
-		renderer.setZoomEnabled(true, false);
+		renderer.setPanEnabled(false, false);
+		renderer.setZoomEnabled(false, false);
 
 		renderer.setGridColor(this.lightFontColor);
 		renderer.setMarginsColor(this.backgroundColor);
@@ -257,18 +303,37 @@ public class SensorGraphViewBuilder {
 		renderer.setYLabelsAlign(Align.RIGHT);
 		renderer.setYAxisMin(0);
 
-		renderer.setBarSpacing(0.2);
+		renderer.setXLabels(0);
+		int count = dataset.getSeriesAt(0).getItemCount();
+		String dateFormat = "HH:mm\nMMM dd";
+		if (this.period.equals("hour")) {
+			dateFormat = "HH:mm";
+		}
+		for (int i = 0; i < count; i = i + (count / 5)) {
+			Double d = dataset.getSeriesAt(0).getX(i);
+			Date date = this.sensor.getMeasures().get(i).getTimestamp();
+			String s = new SimpleDateFormat(dateFormat).format(date);
+			renderer.addXTextLabel(d, s);
+		}
+		this.setYAxisValues(dataset, renderer);
+
+		renderer.setBarSpacing(0);
 
 		return ChartFactory.getBarChartView(this.context, dataset, renderer, Type.STACKED);
 	}
 
-	private GraphicalView createBarGroupView() {
+	private View createBarGroupView() {
 
 		// Categories
 		XYMultipleSeriesDataset tmp_dataset = new XYMultipleSeriesDataset();
 
 		String[] labels = this.sensor.getLabels().split(";");
-		int nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		int nb_values = 0;
+		try {
+			nb_values = this.sensor.getMeasures().get(0).getValue().split(";").length;
+		} catch (IndexOutOfBoundsException ioobe) {
+			return this.createTextView();
+		}
 
 		for (int i = 0; i < nb_values; i++) {
 			TimeSeries timeSerie = new TimeSeries(labels[i]);
@@ -295,8 +360,8 @@ public class SensorGraphViewBuilder {
 			renderer.addSeriesRenderer(r);
 		}
 		renderer.setShowLegend(true);
-		renderer.setPanEnabled(true, false);
-		renderer.setZoomEnabled(true, false);
+		renderer.setPanEnabled(false, false);
+		renderer.setZoomEnabled(false, false);
 
 		renderer.setGridColor(this.lightFontColor);
 		renderer.setMarginsColor(this.backgroundColor);
@@ -306,6 +371,20 @@ public class SensorGraphViewBuilder {
 		renderer.setYLabelsAlign(Align.RIGHT);
 		renderer.setYAxisMin(0);
 
+		renderer.setXLabels(0);
+		int count = dataset.getSeriesAt(0).getItemCount();
+		String dateFormat = "HH:mm\nMMM dd";
+		if (this.period.equals("hour")) {
+			dateFormat = "HH:mm";
+		}
+		for (int i = 0; i < count; i = i + (count / 5)) {
+			Double d = dataset.getSeriesAt(0).getX(i);
+			Date date = this.sensor.getMeasures().get(i).getTimestamp();
+			String s = new SimpleDateFormat(dateFormat).format(date);
+			renderer.addXTextLabel(d, s);
+		}
+		this.setYAxisValues(dataset, renderer);
+
 		renderer.setBarSpacing(0.2);
 
 		return ChartFactory.getBarChartView(this.context, dataset, renderer, Type.DEFAULT);
@@ -314,7 +393,11 @@ public class SensorGraphViewBuilder {
 	@SuppressWarnings("deprecation")
 	private View createTextView() {
 		final TextView tv = new TextView(this.context);
-		String str = this.sensor.getMeasures().get(0).getValue();
+		String str = "No data found for this sensor. Server is maybe unavailable.";
+		try {
+			str = this.sensor.getMeasures().get(0).getValue();
+		} catch (IndexOutOfBoundsException ioobe) {
+		}
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.FILL_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
 		tv.setLayoutParams(params);
 		tv.setPadding(10, 10, 10, 10);
@@ -322,7 +405,22 @@ public class SensorGraphViewBuilder {
 		tv.setTextColor(Color.parseColor("#7FAE00"));
 		tv.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
 		tv.setText(str);
-		tv.setTextSize(16);
+		tv.setTextSize(15);
 		return tv;
+	}
+
+	private void setYAxisValues(XYMultipleSeriesDataset dataset, XYMultipleSeriesRenderer renderer) {
+		renderer.setYLabels(0);
+		Double maxd = 0.0d;
+		for (int i = 0; i < dataset.getSeriesCount(); i++) {
+			if (dataset.getSeriesAt(i).getMaxY() > maxd) {
+				maxd = dataset.getSeriesAt(i).getMaxY();
+			}
+		}
+		DecimalFormat formatter = new DecimalFormat(".00");
+		for (double i = 0; i < maxd; i = i + (maxd / 3)) {
+			renderer.addYTextLabel(i, formatter.format(i) + " " + this.sensor.getUnit() + " ");
+		}
+		renderer.addYTextLabel(maxd * 0.99, formatter.format(maxd) + " " + this.sensor.getUnit() + " ");
 	}
 }

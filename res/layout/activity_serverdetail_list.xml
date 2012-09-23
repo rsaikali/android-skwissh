@@ -115,7 +115,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/imageServerBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/radius_border_green"

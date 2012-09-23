@@ -9,6 +9,13 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 		this.addPreferencesFromResource(R.xml.preferences);
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 }

@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.saikali.android_skwissh.adapters.ServersAdapter;
 import com.saikali.android_skwissh.objects.SkwisshGraphTypeContent;
@@ -23,6 +24,7 @@ import com.saikali.android_skwissh.objects.SkwisshServerGroupContent;
 import com.saikali.android_skwissh.objects.SkwisshServerGroupContent.SkwisshServerGroupItem;
 import com.saikali.android_skwissh.utils.Constants;
 import com.saikali.android_skwissh.utils.SkwisshAjaxHelper;
+import com.saikali.android_skwissh.utils.SkwisshAjaxHelper.UnauthorizedException;
 import com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshBase;
 import com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshBase.OnRefreshListener;
 import com.saikali.android_skwissh.widgets.pulltorefresh.PullToRefreshExpandableListView;
@@ -100,15 +102,29 @@ public class ServersListActivity extends ExpandableListActivity {
 		return false;
 	}
 
-	public class ServersLoader extends AsyncTask<String, String, Boolean> {
+	public class ServersLoader extends AsyncTask<String, String, String> {
+
+		Toast t = Toast.makeText(ServersListActivity.this, "", Toast.LENGTH_SHORT);
 
 		@Override
-		protected Boolean doInBackground(String... params) {
+		protected void onProgressUpdate(String... values) {
+			this.t.setText(values[0]);
+			this.t.show();
+		};
+
+		@Override
+		protected String doInBackground(String... params) {
 			try {
+				this.publishProgress("Loading servers...");
 				SkwisshServerGroupContent.ITEMS.clear();
 				SkwisshServerGroupContent.ITEM_MAP.clear();
 
-				SkwisshAjaxHelper saj = new SkwisshAjaxHelper(ServersListActivity.this.adapter.context);
+				SkwisshAjaxHelper saj;
+				try {
+					saj = new SkwisshAjaxHelper(ServersListActivity.this.adapter.context);
+				} catch (UnauthorizedException ue) {
+					return ue.getMessage();
+				}
 
 				JSONArray jsonGraphTypes = saj.getJSONGraphTypes();
 				for (int i = 0; i < jsonGraphTypes.length(); i++) {
@@ -123,6 +139,7 @@ public class ServersListActivity extends ExpandableListActivity {
 					for (int i = 0; i < jsonServers.length(); i++) {
 
 						SkwisshServerItem server = new SkwisshServerItem(jsonServers.getJSONObject(i), server_group);
+						this.publishProgress("Loading server '" + server.getHostname() + "'");
 						server_group.addServer(server);
 					}
 					if (server_group.getServers().size() != 0) {
@@ -140,26 +157,25 @@ public class ServersListActivity extends ExpandableListActivity {
 					SkwisshServerGroupContent.addItem(server_group);
 				}
 
-				saj.skwisshLogout();
-				return true;
+				return "OK";
 			} catch (Exception e) {
 				Log.e(Constants.SKWISSH_TAG, "ServersLoader", e);
-				return false;
+				return e.getMessage();
 			}
 		}
 
 		@Override
-		protected void onPostExecute(Boolean success) {
-			if (success) {
+		protected void onPostExecute(String success) {
+			this.t.cancel();
+			if (success.equals("OK")) {
 				ServersListActivity.this.adapter.updateEntries();
-
 				for (int i = 0; i < ServersListActivity.this.adapter.getGroupCount(); i++) {
 					ServersListActivity.this.expandableList.getRefreshableView().expandGroup(i);
 				}
 			} else {
 				AlertDialog alertDialog = new AlertDialog.Builder(ServersListActivity.this.adapter.context).create();
 				alertDialog.setTitle("Error");
-				alertDialog.setMessage("An error occured while loading Skwissh data.\nPlease try to reload or check your Skwissh settings...");
+				alertDialog.setMessage("An error occured while loading Skwissh data.\n\n" + success);
 				alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -168,7 +184,6 @@ public class ServersListActivity extends ExpandableListActivity {
 				alertDialog.show();
 			}
 			ServersListActivity.this.expandableList.onRefreshComplete();
-			super.onPostExecute(true);
 		}
 	}
 }

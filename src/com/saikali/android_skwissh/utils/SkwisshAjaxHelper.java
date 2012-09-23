@@ -25,18 +25,21 @@ public class SkwisshAjaxHelper {
 	private String password;
 	private String base_url;
 	private SharedPreferences sharedPrefs;
+	private BasicHttpClient httpclient;
 
-	public SkwisshAjaxHelper(Context context) {
+	public SkwisshAjaxHelper(Context context) throws UnauthorizedException {
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 		this.username = this.sharedPrefs.getString("skwissh_username", "");
 		this.password = this.sharedPrefs.getString("skwissh_password", "");
 		this.base_url = this.sharedPrefs.getString("skwissh_url", "");
+		Log.i(Constants.SKWISSH_TAG, this.base_url);
+		this.httpclient = new BasicHttpClient();
+		this.httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.skwisshLogin();
 	}
 
-	private void skwisshLogin() {
-		BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-		httpclient.get("/login/?next=/skwissh", null);
+	private void skwisshLogin() throws UnauthorizedException {
+		this.httpclient.get(this.base_url + "/login/?next=/skwissh", null);
 		List<HttpCookie> cookies = AbstractHttpClient.getCookieManager().getCookieStore().getCookies();
 		for (int i = 0; i < cookies.size(); i++) {
 			if (cookies.get(i).getName().equals("csrftoken")) {
@@ -47,21 +50,16 @@ public class SkwisshAjaxHelper {
 		ParameterMap params = new ParameterMap();
 		params.add("username", this.username).add("password", this.password);
 		params.add("csrfmiddlewaretoken", this.csrf_token);
-		httpclient.post("/login/?next=/skwissh", params);
-	}
+		HttpResponse response = this.httpclient.post(this.base_url + "/login/?next=/skwissh", params);
 
-	public void skwisshLogout() {
-		BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-		ParameterMap params = new ParameterMap();
-		params.add("csrfmiddlewaretoken", this.csrf_token);
-		httpclient.post("/logout/", params);
+		String url = response.getUrl();
+		if (url.contains("/login/"))
+			throw new UnauthorizedException("Invalid credentials.");
 	}
 
 	public JSONArray getJSONServers(String server_group_id) throws JSONException {
 		try {
-			BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-			httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
-			HttpResponse response = httpclient.get("/servers/" + server_group_id + "/", null);
+			HttpResponse response = this.httpclient.get(this.base_url + "/servers/" + server_group_id + "/", null);
 			return new JSONArray(response.getBodyAsString());
 		} catch (Exception e) {
 			Log.e(Constants.SKWISSH_TAG, "getJSONServers", e);
@@ -71,9 +69,7 @@ public class SkwisshAjaxHelper {
 
 	public JSONArray getJSONServerGroups() throws JSONException {
 		try {
-			BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-			httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
-			HttpResponse response = httpclient.get("/server_groups/", null);
+			HttpResponse response = this.httpclient.get(this.base_url + "/server_groups/", null);
 			return new JSONArray(response.getBodyAsString());
 		} catch (Exception e) {
 			Log.e(Constants.SKWISSH_TAG, "getJSONServerGroups", e);
@@ -83,9 +79,7 @@ public class SkwisshAjaxHelper {
 
 	public JSONArray getJSONGraphTypes() throws JSONException {
 		try {
-			BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-			httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
-			HttpResponse response = httpclient.get("/graphtypes/", null);
+			HttpResponse response = this.httpclient.get(this.base_url + "/graphtypes/", null);
 			return new JSONArray(response.getBodyAsString());
 		} catch (Exception e) {
 			Log.e(Constants.SKWISSH_TAG, "getJSONGraphTypes", e);
@@ -95,9 +89,7 @@ public class SkwisshAjaxHelper {
 
 	public JSONArray getJSONSensors(String server_id) throws JSONException {
 		try {
-			BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-			httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
-			HttpResponse response = httpclient.get("/sensors/" + server_id + "/", null);
+			HttpResponse response = this.httpclient.get(this.base_url + "/sensors/" + server_id + "/", null);
 			return new JSONArray(response.getBodyAsString());
 		} catch (Exception e) {
 			Log.e(Constants.SKWISSH_TAG, "getJSONSensors", e);
@@ -105,17 +97,27 @@ public class SkwisshAjaxHelper {
 		}
 	}
 
-	public JSONArray getJSONMeasures(SkwisshServerItem server, SkwisshSensorItem sensor) {
-		String period = this.sharedPrefs.getString("default_period", "day");
+	public JSONArray getJSONMeasures(SkwisshServerItem server, SkwisshSensorItem sensor, String period) {
 		try {
-			BasicHttpClient httpclient = new BasicHttpClient(this.base_url);
-			httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
 			String params = server.getId() + "/" + sensor.getId() + "/" + period + "/";
-			HttpResponse response = httpclient.get("/mesures/" + params, null);
+			HttpResponse response = this.httpclient.get(this.base_url + "/mesures/" + params, null);
 			return new JSONArray(response.getBodyAsString());
 		} catch (Exception e) {
 			Log.e(Constants.SKWISSH_TAG, "getJSONSensors", e);
 			return null;
+		}
+	}
+
+	public class UnauthorizedException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+		public UnauthorizedException() {
+			super();
+		}
+
+		public UnauthorizedException(String msg) {
+			super(msg);
 		}
 	}
 }

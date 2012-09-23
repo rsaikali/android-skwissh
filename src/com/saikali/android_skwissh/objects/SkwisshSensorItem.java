@@ -16,12 +16,14 @@ public class SkwisshSensorItem {
 	private String labels;
 	private SkwisshServerItem server;
 	private ArrayList<SkwisshMeasureItem> measures = new ArrayList<SkwisshMeasureItem>();
+	private String unit;
 
 	public SkwisshSensorItem(JSONObject json, SkwisshServerItem server) throws JSONException {
 		this.id = Integer.toString(json.getInt("pk"));
 		this.displayName = json.getJSONObject("fields").get("display_name").toString();
 		this.graphTypeId = json.getJSONObject("fields").get("graph_type").toString();
 		this.labels = json.getJSONObject("fields").get("probe_labels").toString();
+		this.unit = json.getJSONObject("fields").get("probe_unit").toString();
 		this.server = server;
 	}
 
@@ -63,5 +65,9 @@ public class SkwisshSensorItem {
 
 	public String getLabels() {
 		return this.labels;
+	}
+
+	public String getUnit() {
+		return this.unit;
 	}
 }
