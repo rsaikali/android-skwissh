@@ -5,7 +5,7 @@
         android:key="server_category"
         android:title="Your Skwissh server" >
         <EditTextPreference
-            android:defaultValue="http://qpvpi2.ve-hotech.me:8080/skwissh"
+            android:defaultValue="http://skwissh.com/skwissh"
             android:dialogMessage="Enter your Skwissh server URL"
             android:dialogTitle="Skwissh URL"
             android:key="skwissh_url"
