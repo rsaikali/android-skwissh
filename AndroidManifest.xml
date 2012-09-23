@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.saikali.android_skwissh"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="0.0.1" >
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="8"
         android:targetSdkVersion="10" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,7 +16,8 @@
         <activity
             android:name=".ServersListActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_servers_list">
+            android:label="@string/title_activity_servers_list"
+            android:hardwareAccelerated="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
