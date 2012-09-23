@@ -29,9 +29,9 @@ public class SkwisshAjaxHelper {
 
 	public SkwisshAjaxHelper(Context context) throws UnauthorizedException {
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-		this.username = this.sharedPrefs.getString("skwissh_username", "");
-		this.password = this.sharedPrefs.getString("skwissh_password", "");
-		this.base_url = this.sharedPrefs.getString("skwissh_url", "");
+		this.username = this.sharedPrefs.getString("skwissh_username", "test");
+		this.password = this.sharedPrefs.getString("skwissh_password", "test");
+		this.base_url = this.sharedPrefs.getString("skwissh_url", "http://skwissh.com/skwissh");
 		Log.i(Constants.SKWISSH_TAG, this.base_url);
 		this.httpclient = new BasicHttpClient();
 		this.httpclient.addHeader("X-Requested-With", "XMLHttpRequest");
