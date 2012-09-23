@@ -167,7 +167,7 @@ public class ServersListActivity extends ExpandableListActivity {
 		@Override
 		protected void onPostExecute(String success) {
 			this.t.cancel();
-			if (success.equals("OK")) {
+			if ("OK".equals(success)) {
 				ServersListActivity.this.adapter.updateEntries();
 				for (int i = 0; i < ServersListActivity.this.adapter.getGroupCount(); i++) {
 					ServersListActivity.this.expandableList.getRefreshableView().expandGroup(i);

@@ -186,7 +186,7 @@ public class ServerDetailActivity extends Activity {
 		@Override
 		protected void onPostExecute(String success) {
 			this.t.cancel();
-			if (success.equals("OK")) {
+			if ("OK".equals(success)) {
 				ServerDetailActivity.this.adapter.updateEntries();
 			} else {
 				AlertDialog alertDialog = new AlertDialog.Builder(ServerDetailActivity.this.adapter.context).create();
