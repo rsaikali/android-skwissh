@@ -1,10 +1,18 @@
+.*
+.settings
+.project
 gen
 apk
 apk/android-skwissh.apk
-bin
-apk
 bin
 bin/android-skwissh.apk
 bin/android-skwissh.apk
 bin/classes.dex
 bin/resources.ap_
+*.class
+lint.xml
+
+# Package Files #
+*.jar
+*.war
+*.ear
