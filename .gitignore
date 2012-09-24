@@ -1,10 +1,13 @@
-.*
 .settings
+.settings/*
 .project
+.classpath
 gen
 apk
+apk/*
 apk/android-skwissh.apk
 bin
+bin/*
 bin/android-skwissh.apk
 bin/android-skwissh.apk
 bin/classes.dex
